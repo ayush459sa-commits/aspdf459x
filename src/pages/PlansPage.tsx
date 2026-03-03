@@ -4,10 +4,14 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
+const UPI_ID = "ayushbhaskar458@okhdfcbank";
+const UPI_NAME = "Ayush Bhaskar";
+
 const plans = [
   {
     name: "Monthly",
     price: "₹199",
+    amount: "199",
     period: "/month",
     features: [
       "Unlimited PDF Access",
@@ -20,6 +24,7 @@ const plans = [
   {
     name: "Yearly",
     price: "₹1,499",
+    amount: "1499",
     period: "/year",
     features: [
       "Everything in Monthly",
