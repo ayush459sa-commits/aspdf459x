@@ -40,8 +40,16 @@ const plans = [
 const PlansPage = () => {
   const navigate = useNavigate();
 
-  const handleSubscribe = (plan: string) => {
-    toast.info(`To subscribe to the ${plan} plan, please make a UPI payment to: ayushbhaskar458@okhdfcbank and upload your screenshot.`);
+  const handleSubscribe = (plan: string, amount: string) => {
+    const upiUrl = `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(UPI_NAME)}&am=${amount}&cu=INR&tn=${encodeURIComponent(`AS PDFs - ${plan} Plan Subscription`)}`;
+    
+    // Open UPI app directly
+    window.location.href = upiUrl;
+    
+    // Show fallback message after a short delay (in case UPI app doesn't open)
+    setTimeout(() => {
+      toast.info("अगर UPI app नहीं खुला, तो नीचे दिए UPI ID पर manually payment करें।");
+    }, 2000);
   };
 
   return (
