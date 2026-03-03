@@ -4,10 +4,14 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
+const UPI_ID = "ayushbhaskar458@okhdfcbank";
+const UPI_NAME = "Ayush Bhaskar";
+
 const plans = [
   {
     name: "Monthly",
     price: "₹199",
+    amount: "199",
     period: "/month",
     features: [
       "Unlimited PDF Access",
@@ -20,6 +24,7 @@ const plans = [
   {
     name: "Yearly",
     price: "₹1,499",
+    amount: "1499",
     period: "/year",
     features: [
       "Everything in Monthly",
@@ -35,8 +40,16 @@ const plans = [
 const PlansPage = () => {
   const navigate = useNavigate();
 
-  const handleSubscribe = (plan: string) => {
-    toast.info(`To subscribe to the ${plan} plan, please make a UPI payment to: ayushbhaskar458@okhdfcbank and upload your screenshot.`);
+  const handleSubscribe = (plan: string, amount: string) => {
+    const upiUrl = `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(UPI_NAME)}&am=${amount}&cu=INR&tn=${encodeURIComponent(`AS PDFs - ${plan} Plan Subscription`)}`;
+    
+    // Open UPI app directly
+    window.location.href = upiUrl;
+    
+    // Show fallback message after a short delay (in case UPI app doesn't open)
+    setTimeout(() => {
+      toast.info("अगर UPI app नहीं खुला, तो नीचे दिए UPI ID पर manually payment करें।");
+    }, 2000);
   };
 
   return (
@@ -103,7 +116,7 @@ const PlansPage = () => {
               </ul>
 
               <Button
-                onClick={() => handleSubscribe(plan.name)}
+                onClick={() => handleSubscribe(plan.name, plan.amount)}
                 className={`w-full h-12 font-semibold ${
                   plan.popular
                     ? "gold-gradient text-primary-foreground hover:opacity-90"
