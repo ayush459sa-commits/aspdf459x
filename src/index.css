@@ -44,23 +44,6 @@
     --sidebar-accent-foreground: 210 40% 90%;
     --sidebar-border: 222 20% 18%;
     --sidebar-ring: 43 96% 56%;
-
-    /* Custom tokens */
-    --gold: 43 96% 56%;
-    --gold-dim: 43 60% 40%;
-    --gold-glow: 43 96% 70%;
-    --navy-deep: 222 47% 4%;
-    --navy: 222 47% 6%;
-    --navy-light: 222 44% 12%;
-    --glass: 222 40% 12%;
-    --glass-border: 222 20% 22%;
-    --success: 142 71% 45%;
-    --success-foreground: 0 0% 100%;
-  }
-
-  .dark {
-    --background: 222 47% 6%;
-    --foreground: 210 40% 96%;
   }
 }
 
@@ -70,7 +53,7 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply bg-background text-foreground antialiased;
     font-family: 'Inter', sans-serif;
   }
 
@@ -79,31 +62,37 @@
   }
 }
 
-@layer utilities {
-  .glass {
-    @apply bg-[hsl(var(--glass)/0.6)] backdrop-blur-xl border border-[hsl(var(--glass-border))];
-  }
+/* Custom utility classes using plain CSS */
+.glass {
+  background: hsla(222, 40%, 12%, 0.6);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid hsla(222, 20%, 22%, 1);
+}
 
-  .glass-card {
-    @apply bg-[hsl(var(--glass)/0.4)] backdrop-blur-lg border border-[hsl(var(--glass-border)/0.5)] rounded-xl;
-  }
+.glass-card {
+  background: hsla(222, 40%, 12%, 0.4);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid hsla(222, 20%, 22%, 0.5);
+  border-radius: 0.75rem;
+}
 
-  .gold-gradient {
-    background: linear-gradient(135deg, hsl(var(--gold)), hsl(var(--gold-glow)));
-  }
+.gold-gradient {
+  background: linear-gradient(135deg, hsl(43, 96%, 56%), hsl(43, 96%, 70%));
+}
 
-  .gold-text {
-    background: linear-gradient(135deg, hsl(var(--gold)), hsl(var(--gold-glow)));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
+.gold-text {
+  background: linear-gradient(135deg, hsl(43, 96%, 56%), hsl(43, 96%, 70%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
 
-  .glow-gold {
-    box-shadow: 0 0 20px hsl(var(--gold) / 0.15), 0 0 60px hsl(var(--gold) / 0.05);
-  }
+.glow-gold {
+  box-shadow: 0 0 20px hsla(43, 96%, 56%, 0.15), 0 0 60px hsla(43, 96%, 56%, 0.05);
+}
 
-  .glow-gold-strong {
-    box-shadow: 0 0 30px hsl(var(--gold) / 0.25), 0 0 80px hsl(var(--gold) / 0.1);
-  }
+.glow-gold-strong {
+  box-shadow: 0 0 30px hsla(43, 96%, 56%, 0.25), 0 0 80px hsla(43, 96%, 56%, 0.1);
 }
