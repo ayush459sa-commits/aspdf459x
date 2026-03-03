@@ -116,7 +116,7 @@ const PlansPage = () => {
               </ul>
 
               <Button
-                onClick={() => handleSubscribe(plan.name)}
+                onClick={() => handleSubscribe(plan.name, plan.amount)}
                 className={`w-full h-12 font-semibold ${
                   plan.popular
                     ? "gold-gradient text-primary-foreground hover:opacity-90"
