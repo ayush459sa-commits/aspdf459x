@@ -26,7 +26,7 @@ const PDFCard = ({ pdf, isSubscribed }: PDFCardProps) => {
       toast.error("Subscribe to unlock this PDF");
       navigate("/plans");
     } else {
-      toast.success(`Opening: ${pdf.title}`);
+      navigate(`/pdf/${pdf.id}`);
     }
   };
 
