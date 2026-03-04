@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Crown, Check, ArrowLeft, Star } from "lucide-react";
+import { Crown, Check, ArrowLeft, Star, Copy, ExternalLink, QrCode, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const UPI_ID = "ayushbhaskar458@okhdfcbank";
 const UPI_NAME = "Ayush Bhaskar";
@@ -39,18 +41,35 @@ const plans = [
 
 const PlansPage = () => {
   const navigate = useNavigate();
+  const [paymentDialog, setPaymentDialog] = useState<{ open: boolean; plan: string; amount: string }>({
+    open: false, plan: "", amount: ""
+  });
 
   const handleSubscribe = (plan: string, amount: string) => {
-    const upiUrl = `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(UPI_NAME)}&am=${amount}&cu=INR&tn=${encodeURIComponent(`AS PDFs - ${plan} Plan Subscription`)}`;
-    
-    // Open UPI app directly
-    window.location.href = upiUrl;
-    
-    // Show fallback message after a short delay (in case UPI app doesn't open)
-    setTimeout(() => {
-      toast.info("अगर UPI app नहीं खुला, तो नीचे दिए UPI ID पर manually payment करें।");
-    }, 2000);
+    setPaymentDialog({ open: true, plan, amount });
   };
+
+  const openUPIApp = () => {
+    const { plan, amount } = paymentDialog;
+    const upiUrl = `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(UPI_NAME)}&am=${amount}&cu=INR&tn=${encodeURIComponent(`AS PDFs - ${plan} Plan`)}`;
+    window.location.href = upiUrl;
+    toast.info("UPI app खुल रहा है...");
+  };
+
+  const openGPay = () => {
+    const { plan, amount } = paymentDialog;
+    const gpayUrl = `https://pay.google.com/gp/v/save?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(UPI_NAME)}&am=${paymentDialog.amount}&cu=INR&tn=${encodeURIComponent(`AS PDFs - ${plan} Plan`)}`;
+    window.open(gpayUrl, "_blank");
+  };
+
+  const copyUPI = () => {
+    navigator.clipboard.writeText(UPI_ID);
+    toast.success("UPI ID copied!");
+  };
+
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
+    `upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent(UPI_NAME)}&am=${paymentDialog.amount}&cu=INR&tn=${encodeURIComponent(`AS PDFs - ${paymentDialog.plan} Plan`)}`
+  )}`;
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
@@ -137,12 +156,72 @@ const PlansPage = () => {
           className="glass-card p-6 mt-8 max-w-3xl mx-auto text-center"
         >
           <p className="text-sm text-muted-foreground mb-2">Pay via UPI</p>
-          <p className="text-foreground font-mono font-semibold text-lg">ayushbhaskar458@okhdfcbank</p>
+          <p className="text-foreground font-mono font-semibold text-lg">{UPI_ID}</p>
           <p className="text-xs text-muted-foreground mt-2">
             After payment, upload your screenshot in the app for instant verification.
           </p>
         </motion.div>
       </div>
+
+      {/* Payment Dialog */}
+      <Dialog open={paymentDialog.open} onOpenChange={(open) => setPaymentDialog(prev => ({ ...prev, open }))}>
+        <DialogContent className="glass-card border-border max-w-md mx-auto">
+          <DialogHeader>
+            <DialogTitle className="text-foreground text-center text-xl font-display">
+              Pay ₹{paymentDialog.amount} for {paymentDialog.plan} Plan
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-5 pt-2">
+            {/* QR Code */}
+            <div className="flex flex-col items-center gap-3">
+              <p className="text-sm text-muted-foreground flex items-center gap-1">
+                <QrCode className="w-4 h-4" /> Scan QR Code to Pay
+              </p>
+              <div className="bg-white p-3 rounded-xl">
+                <img
+                  src={qrUrl}
+                  alt="UPI QR Code"
+                  className="w-48 h-48"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-px bg-border" />
+              <span className="text-xs text-muted-foreground">OR</span>
+              <div className="flex-1 h-px bg-border" />
+            </div>
+
+            {/* UPI App Button */}
+            <Button
+              onClick={openUPIApp}
+              className="w-full h-12 gold-gradient text-primary-foreground font-semibold hover:opacity-90"
+            >
+              <Smartphone className="w-4 h-4 mr-2" />
+              Open UPI App (GPay / PhonePe / Paytm)
+            </Button>
+
+            {/* Copy UPI ID */}
+            <div className="glass-card p-4 flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs text-muted-foreground">UPI ID</p>
+                <p className="text-sm font-mono text-foreground font-semibold">{UPI_ID}</p>
+              </div>
+              <Button variant="outline" size="sm" onClick={copyUPI} className="border-border text-foreground">
+                <Copy className="w-3.5 h-3.5 mr-1" /> Copy
+              </Button>
+            </div>
+
+            <p className="text-xs text-muted-foreground text-center">
+              Payment करने के बाद screenshot upload करें या admin को भेजें।<br />
+              Subscription तुरंत activate हो जाएगी।
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
