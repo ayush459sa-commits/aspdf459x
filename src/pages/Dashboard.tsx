@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 const categories = ["All", "Business", "Technology", "Science", "Education", "Finance", "Self-Help"];
 
 const mockPDFs = [
+  { id: 10, title: "The Book Thief", category: "Education", pages: 584, locked: false, description: "A powerful story set during World War II by Markus Zusak", pdfUrl: "/pdfs/The_Book_Thief.pdf" },
   { id: 1, title: "Advanced Machine Learning Guide", category: "Technology", pages: 245, locked: true, description: "Deep dive into ML algorithms and neural networks" },
   { id: 2, title: "Financial Freedom Blueprint", category: "Finance", pages: 180, locked: true, description: "Step-by-step guide to financial independence" },
   { id: 3, title: "The Science of Habits", category: "Self-Help", pages: 156, locked: false, description: "Understanding and building lasting habits" },
