@@ -8,6 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import PlansPage from "./pages/PlansPage";
 import AdminPanel from "./pages/AdminPanel";
 import PDFViewer from "./pages/PDFViewer";
+import InstallPage from "./pages/InstallPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/plans" element={<PlansPage />} />
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/pdf/:id" element={<PDFViewer />} />
+          <Route path="/install" element={<InstallPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
