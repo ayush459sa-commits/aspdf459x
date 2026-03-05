@@ -19,6 +19,7 @@ interface PDF {
 }
 
 const initialPDFs: PDF[] = [
+  { id: 10, title: "The Book Thief", category: "Education", locked: false, downloads: true, description: "A powerful story set during World War II by Markus Zusak" },
   { id: 1, title: "Advanced Machine Learning Guide", category: "Technology", locked: true, downloads: true, description: "Deep dive into ML algorithms" },
   { id: 2, title: "Financial Freedom Blueprint", category: "Finance", locked: true, downloads: false, description: "Guide to financial independence" },
   { id: 3, title: "The Science of Habits", category: "Self-Help", locked: false, downloads: true, description: "Building lasting habits" },
