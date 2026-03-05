@@ -25,6 +25,7 @@ const App = () => (
           <Route path="/plans" element={<PlansPage />} />
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/pdf/:id" element={<PDFViewer />} />
+          <Route path="/install" element={<InstallPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
