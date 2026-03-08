@@ -14,7 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      pdfs: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          downloads: boolean
+          file_url: string
+          id: string
+          locked: boolean
+          pages: number | null
+          title: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          downloads?: boolean
+          file_url: string
+          id?: string
+          locked?: boolean
+          pages?: number | null
+          title: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          downloads?: boolean
+          file_url?: string
+          id?: string
+          locked?: boolean
+          pages?: number | null
+          title?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
