@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 interface PDF {
-  id: number;
+  id: string | number;
   title: string;
   category: string;
   pages: number;

@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Upload, Trash2, Lock, Unlock, FileText, Users, CreditCard, Plus, Crown, BarChart3, Bell, Instagram } from "lucide-react";
+import { ArrowLeft, Upload, Trash2, Lock, Unlock, FileText, Users, CreditCard, Plus, Crown, BarChart3, Bell, Instagram, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,22 +8,18 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
+import { supabase } from "@/integrations/supabase/client";
 
 interface PDF {
-  id: number;
+  id: string;
   title: string;
   category: string;
   locked: boolean;
   downloads: boolean;
-  description: string;
+  description: string | null;
+  file_url: string;
+  pages: number | null;
 }
-
-const initialPDFs: PDF[] = [
-  { id: 10, title: "The Book Thief", category: "Education", locked: false, downloads: true, description: "A powerful story set during World War II by Markus Zusak" },
-  { id: 1, title: "Advanced Machine Learning Guide", category: "Technology", locked: true, downloads: true, description: "Deep dive into ML algorithms" },
-  { id: 2, title: "Financial Freedom Blueprint", category: "Finance", locked: true, downloads: false, description: "Guide to financial independence" },
-  { id: 3, title: "The Science of Habits", category: "Self-Help", locked: false, downloads: true, description: "Building lasting habits" },
-];
 
 const mockUsers = [
   { id: 1, name: "Rahul Sharma", email: "rahul@email.com", plan: "Yearly", status: "Active", expiresAt: "2026-03-01", amount: "₹1,499" },
@@ -40,7 +36,11 @@ const AdminPanel = () => {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
-  const [pdfs, setPdfs] = useState<PDF[]>(initialPDFs);
+  const [pdfs, setPdfs] = useState<PDF[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handlePasswordSubmit = () => {
     if (passwordInput === ADMIN_PASSWORD) {
@@ -51,6 +51,24 @@ const AdminPanel = () => {
       setPasswordInput("");
     }
   };
+
+  const fetchPDFs = async () => {
+    const { data, error } = await supabase
+      .from("pdfs")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) {
+      toast.error("PDFs load नहीं हो पाए");
+      console.error(error);
+    } else {
+      setPdfs(data || []);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    if (isAuthenticated) fetchPDFs();
+  }, [isAuthenticated]);
 
   if (!isAuthenticated) {
     return (
@@ -82,43 +100,85 @@ const AdminPanel = () => {
     );
   }
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
     if (!title || !category) {
       toast.error("Title और Category भरें!");
       return;
     }
-    const newPDF: PDF = {
-      id: Date.now(),
-      title,
-      category,
-      locked: true,
-      downloads: false,
-      description,
-    };
-    setPdfs((prev) => [newPDF, ...prev]);
-    toast.success(`"${title}" successfully upload हो गया!`);
-    setTitle("");
-    setCategory("");
-    setDescription("");
+    if (!selectedFile) {
+      toast.error("PDF file select करो!");
+      return;
+    }
+    if (selectedFile.type !== "application/pdf") {
+      toast.error("सिर्फ PDF files upload करो!");
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const fileName = `${Date.now()}_${selectedFile.name}`;
+      const { error: uploadError } = await supabase.storage
+        .from("pdfs")
+        .upload(fileName, selectedFile);
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage.from("pdfs").getPublicUrl(fileName);
+
+      const { error: dbError } = await supabase.from("pdfs").insert({
+        title,
+        category,
+        description,
+        file_url: urlData.publicUrl,
+        locked: true,
+        downloads: false,
+      });
+
+      if (dbError) throw dbError;
+
+      toast.success(`"${title}" successfully upload हो गया! 🎉`);
+      setTitle("");
+      setCategory("");
+      setDescription("");
+      setSelectedFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      fetchPDFs();
+    } catch (err: any) {
+      toast.error("Upload failed: " + (err.message || "Unknown error"));
+      console.error(err);
+    } finally {
+      setUploading(false);
+    }
   };
 
-  const toggleLock = (id: number) => {
-    setPdfs((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, locked: !p.locked } : p))
-    );
-    toast.success("PDF lock status updated!");
+  const toggleLock = async (id: string, currentLocked: boolean) => {
+    const { error } = await supabase.from("pdfs").update({ locked: !currentLocked }).eq("id", id);
+    if (error) {
+      toast.error("Update failed");
+    } else {
+      setPdfs((prev) => prev.map((p) => (p.id === id ? { ...p, locked: !currentLocked } : p)));
+      toast.success("PDF lock status updated!");
+    }
   };
 
-  const toggleDownload = (id: number) => {
-    setPdfs((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, downloads: !p.downloads } : p))
-    );
-    toast.success("Download permission updated!");
+  const toggleDownload = async (id: string, currentDownloads: boolean) => {
+    const { error } = await supabase.from("pdfs").update({ downloads: !currentDownloads }).eq("id", id);
+    if (error) {
+      toast.error("Update failed");
+    } else {
+      setPdfs((prev) => prev.map((p) => (p.id === id ? { ...p, downloads: !currentDownloads } : p)));
+      toast.success("Download permission updated!");
+    }
   };
 
-  const deletePDF = (id: number) => {
-    setPdfs((prev) => prev.filter((p) => p.id !== id));
-    toast.success("PDF deleted!");
+  const deletePDF = async (id: string) => {
+    const { error } = await supabase.from("pdfs").delete().eq("id", id);
+    if (error) {
+      toast.error("Delete failed");
+    } else {
+      setPdfs((prev) => prev.filter((p) => p.id !== id));
+      toast.success("PDF deleted!");
+    }
   };
 
   const totalUsers = mockUsers.length;
@@ -126,7 +186,6 @@ const AdminPanel = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="sticky top-0 z-50 glass border-b border-border">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -138,37 +197,19 @@ const AdminPanel = () => {
               <p className="text-xs text-muted-foreground">Manage your PDFs & Users</p>
             </div>
           </div>
-          <a
-            href="https://instagram.com/ayush_bhaskar_459"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
-          >
+          <a href="https://instagram.com/ayush_bhaskar_459" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
             <Instagram className="w-5 h-5" />
           </a>
         </div>
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
-        {/* Admin Name */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
-        >
-          <h2 className="text-4xl md:text-6xl font-display font-black gold-text tracking-tight">
-            SA.AYUSH
-          </h2>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8">
+          <h2 className="text-4xl md:text-6xl font-display font-black gold-text tracking-tight">SA.AYUSH</h2>
           <p className="text-muted-foreground mt-2 text-sm">Admin Dashboard</p>
         </motion.div>
 
-        {/* Stats Cards */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
-        >
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <div className="glass-card p-4 text-center">
             <FileText className="w-6 h-6 text-primary mx-auto mb-2" />
             <p className="text-2xl font-bold text-foreground">{pdfs.length}</p>
@@ -193,18 +234,11 @@ const AdminPanel = () => {
 
         <Tabs defaultValue="pdfs">
           <TabsList className="bg-secondary mb-8 w-full justify-start">
-            <TabsTrigger value="pdfs" className="data-[state=active]:bg-card">
-              <FileText className="w-4 h-4 mr-2" /> PDFs
-            </TabsTrigger>
-            <TabsTrigger value="users" className="data-[state=active]:bg-card">
-              <Users className="w-4 h-4 mr-2" /> Users
-            </TabsTrigger>
-            <TabsTrigger value="subscriptions" className="data-[state=active]:bg-card">
-              <CreditCard className="w-4 h-4 mr-2" /> Subscriptions
-            </TabsTrigger>
+            <TabsTrigger value="pdfs" className="data-[state=active]:bg-card"><FileText className="w-4 h-4 mr-2" /> PDFs</TabsTrigger>
+            <TabsTrigger value="users" className="data-[state=active]:bg-card"><Users className="w-4 h-4 mr-2" /> Users</TabsTrigger>
+            <TabsTrigger value="subscriptions" className="data-[state=active]:bg-card"><CreditCard className="w-4 h-4 mr-2" /> Subscriptions</TabsTrigger>
           </TabsList>
 
-          {/* PDFs Tab */}
           <TabsContent value="pdfs">
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass-card p-6 mb-8">
               <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
@@ -224,65 +258,79 @@ const AdminPanel = () => {
                 <label className="text-sm text-muted-foreground mb-1.5 block">Description</label>
                 <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Brief description..." className="bg-secondary border-border min-h-[80px]" />
               </div>
-              <Button className="gold-gradient text-primary-foreground hover:opacity-90" onClick={handleUpload}>
-                <Upload className="w-4 h-4 mr-2" /> Upload PDF
+              <div className="mb-4">
+                <label className="text-sm text-muted-foreground mb-1.5 block">PDF File *</label>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf"
+                  onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                  className="block w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
+                />
+                {selectedFile && (
+                  <p className="text-xs text-muted-foreground mt-1.5">
+                    Selected: {selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
+                  </p>
+                )}
+              </div>
+              <Button className="gold-gradient text-primary-foreground hover:opacity-90" onClick={handleUpload} disabled={uploading}>
+                {uploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
+                {uploading ? "Uploading..." : "Upload PDF"}
               </Button>
             </motion.div>
 
-            {/* PDF List */}
-            <div className="space-y-3">
-              {pdfs.map((pdf, i) => (
-                <motion.div
-                  key={pdf.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.03 }}
-                  className="glass-card p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
-                >
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <FileText className="w-5 h-5 text-primary" />
+            {loading ? (
+              <div className="text-center py-12">
+                <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto" />
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {pdfs.map((pdf, i) => (
+                  <motion.div
+                    key={pdf.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.03 }}
+                    className="glass-card p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                  >
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <FileText className="w-5 h-5 text-primary" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-medium text-foreground text-sm truncate">{pdf.title}</p>
+                        <p className="text-xs text-muted-foreground">{pdf.category} • {pdf.description}</p>
+                      </div>
                     </div>
-                    <div className="min-w-0">
-                      <p className="font-medium text-foreground text-sm truncate">{pdf.title}</p>
-                      <p className="text-xs text-muted-foreground">{pdf.category} • {pdf.description}</p>
+                    <div className="flex items-center gap-4 flex-shrink-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">{pdf.locked ? "Locked" : "Open"}</span>
+                        <Switch checked={pdf.locked} onCheckedChange={() => toggleLock(pdf.id, pdf.locked)} />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">DL</span>
+                        <Switch checked={pdf.downloads} onCheckedChange={() => toggleDownload(pdf.id, pdf.downloads)} />
+                      </div>
+                      <Button variant="ghost" size="icon" onClick={() => deletePDF(pdf.id)} className="text-destructive hover:text-destructive hover:bg-destructive/10">
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
                     </div>
+                  </motion.div>
+                ))}
+                {pdfs.length === 0 && (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <FileText className="w-10 h-10 mx-auto mb-3 opacity-40" />
+                    <p>No PDFs uploaded yet</p>
                   </div>
-                  <div className="flex items-center gap-4 flex-shrink-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-muted-foreground">{pdf.locked ? "Locked" : "Open"}</span>
-                      <Switch checked={pdf.locked} onCheckedChange={() => toggleLock(pdf.id)} />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-muted-foreground">DL</span>
-                      <Switch checked={pdf.downloads} onCheckedChange={() => toggleDownload(pdf.id)} />
-                    </div>
-                    <Button variant="ghost" size="icon" onClick={() => deletePDF(pdf.id)} className="text-destructive hover:text-destructive hover:bg-destructive/10">
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </motion.div>
-              ))}
-              {pdfs.length === 0 && (
-                <div className="text-center py-12 text-muted-foreground">
-                  <FileText className="w-10 h-10 mx-auto mb-3 opacity-40" />
-                  <p>No PDFs uploaded yet</p>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </TabsContent>
 
-          {/* Users Tab */}
           <TabsContent value="users">
             <div className="space-y-3">
               {mockUsers.map((user, i) => (
-                <motion.div
-                  key={user.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                  className="glass-card p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
-                >
+                <motion.div key={user.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="glass-card p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                       <span className="text-sm font-bold text-primary">{user.name.charAt(0)}</span>
@@ -293,13 +341,7 @@ const AdminPanel = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-3 flex-shrink-0">
-                    <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
-                      user.status === "Active"
-                        ? "bg-green-500/10 text-green-400"
-                        : "bg-destructive/10 text-destructive"
-                    }`}>
-                      {user.status}
-                    </span>
+                    <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${user.status === "Active" ? "bg-green-500/10 text-green-400" : "bg-destructive/10 text-destructive"}`}>{user.status}</span>
                     <span className="text-xs text-muted-foreground">{user.plan}</span>
                     <span className="text-xs text-muted-foreground">Exp: {user.expiresAt}</span>
                   </div>
@@ -308,17 +350,10 @@ const AdminPanel = () => {
             </div>
           </TabsContent>
 
-          {/* Subscriptions Tab */}
           <TabsContent value="subscriptions">
             <div className="space-y-3">
               {mockUsers.map((user, i) => (
-                <motion.div
-                  key={user.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                  className="glass-card p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
-                >
+                <motion.div key={user.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="glass-card p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
                     <p className="font-medium text-foreground text-sm">{user.name}</p>
                     <p className="text-xs text-muted-foreground">{user.email}</p>
@@ -328,13 +363,7 @@ const AdminPanel = () => {
                       <p className="text-sm font-semibold gold-text">{user.amount}</p>
                       <p className="text-xs text-muted-foreground">{user.plan} Plan</p>
                     </div>
-                    <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
-                      user.status === "Active"
-                        ? "bg-green-500/10 text-green-400"
-                        : "bg-destructive/10 text-destructive"
-                    }`}>
-                      {user.status}
-                    </span>
+                    <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${user.status === "Active" ? "bg-green-500/10 text-green-400" : "bg-destructive/10 text-destructive"}`}>{user.status}</span>
                     {user.status === "Expired" && (
                       <Button size="sm" variant="outline" className="border-primary text-primary hover:bg-primary/10 text-xs">
                         <Bell className="w-3 h-3 mr-1" /> Remind
