@@ -31,12 +31,56 @@ const mockUsers = [
   { id: 3, name: "Amit Singh", email: "amit@email.com", plan: "Monthly", status: "Expired", expiresAt: "2026-02-10", amount: "₹199" },
 ];
 
+const ADMIN_PASSWORD = "ayush0001";
+
 const AdminPanel = () => {
   const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [passwordInput, setPasswordInput] = useState("");
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [pdfs, setPdfs] = useState<PDF[]>(initialPDFs);
+
+  const handlePasswordSubmit = () => {
+    if (passwordInput === ADMIN_PASSWORD) {
+      setIsAuthenticated(true);
+      toast.success("Welcome, Admin! 🔓");
+    } else {
+      toast.error("Wrong password!");
+      setPasswordInput("");
+    }
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="glass-card p-8 w-full max-w-sm text-center"
+        >
+          <Lock className="w-12 h-12 text-primary mx-auto mb-4" />
+          <h2 className="text-xl font-display font-bold text-foreground mb-2">Admin Access</h2>
+          <p className="text-sm text-muted-foreground mb-6">Password enter करो</p>
+          <Input
+            type="password"
+            value={passwordInput}
+            onChange={(e) => setPasswordInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handlePasswordSubmit()}
+            placeholder="Password"
+            className="bg-secondary border-border mb-4"
+          />
+          <Button className="w-full gold-gradient text-primary-foreground" onClick={handlePasswordSubmit}>
+            <Unlock className="w-4 h-4 mr-2" /> Unlock
+          </Button>
+          <Button variant="ghost" className="mt-3 text-muted-foreground" onClick={() => navigate("/dashboard")}>
+            <ArrowLeft className="w-4 h-4 mr-1" /> Back
+          </Button>
+        </motion.div>
+      </div>
+    );
+  }
 
   const handleUpload = () => {
     if (!title || !category) {
