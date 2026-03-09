@@ -64,35 +64,35 @@
 
 /* Custom utility classes using plain CSS */
 .glass {
-  background: hsla(222, 40%, 12%, 0.6);
+  background: hsla(0, 0%, 10%, 0.6);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid hsla(222, 20%, 22%, 1);
+  border: 1px solid hsla(0, 0%, 18%, 1);
 }
 
 .glass-card {
-  background: hsla(222, 40%, 12%, 0.4);
+  background: hsla(0, 0%, 10%, 0.4);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid hsla(222, 20%, 22%, 0.5);
+  border: 1px solid hsla(0, 0%, 18%, 0.5);
   border-radius: 0.75rem;
 }
 
 .gold-gradient {
-  background: linear-gradient(135deg, hsl(43, 96%, 56%), hsl(43, 96%, 70%));
+  background: linear-gradient(135deg, hsl(15, 90%, 55%), hsl(25, 100%, 60%));
 }
 
 .gold-text {
-  background: linear-gradient(135deg, hsl(43, 96%, 56%), hsl(43, 96%, 70%));
+  background: linear-gradient(135deg, hsl(15, 90%, 55%), hsl(30, 100%, 60%));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .glow-gold {
-  box-shadow: 0 0 20px hsla(43, 96%, 56%, 0.15), 0 0 60px hsla(43, 96%, 56%, 0.05);
+  box-shadow: 0 0 20px hsla(15, 90%, 55%, 0.15), 0 0 60px hsla(15, 90%, 55%, 0.05);
 }
 
 .glow-gold-strong {
-  box-shadow: 0 0 30px hsla(43, 96%, 56%, 0.25), 0 0 80px hsla(43, 96%, 56%, 0.1);
+  box-shadow: 0 0 30px hsla(15, 90%, 55%, 0.25), 0 0 80px hsla(15, 90%, 55%, 0.1);
 }
