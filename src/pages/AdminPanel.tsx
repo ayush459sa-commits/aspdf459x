@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Upload, Trash2, Lock, Unlock, FileText, Users, CreditCard, Plus, Crown, BarChart3, Bell, Instagram, Loader2 } from "lucide-react";
+import { ArrowLeft, Upload, Trash2, Lock, FileText, Users, CreditCard, Plus, Crown, BarChart3, Bell, Instagram, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -27,12 +27,12 @@ const mockUsers = [
   { id: 3, name: "Amit Singh", email: "amit@email.com", plan: "Monthly", status: "Expired", expiresAt: "2026-02-10", amount: "₹199" },
 ];
 
-const ADMIN_PASSWORD = "ayush0001";
+const ADMIN_EMAIL = "ayush459sa@gmail.com";
 
 const AdminPanel = () => {
   const navigate = useNavigate();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [passwordInput, setPasswordInput] = useState("");
+  const [authChecking, setAuthChecking] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
@@ -41,16 +41,6 @@ const AdminPanel = () => {
   const [uploading, setUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handlePasswordSubmit = () => {
-    if (passwordInput === ADMIN_PASSWORD) {
-      setIsAuthenticated(true);
-      toast.success("Welcome, Admin! 🔓");
-    } else {
-      toast.error("Wrong password!");
-      setPasswordInput("");
-    }
-  };
 
   const fetchPDFs = async () => {
     const { data, error } = await supabase
@@ -67,10 +57,42 @@ const AdminPanel = () => {
   };
 
   useEffect(() => {
-    if (isAuthenticated) fetchPDFs();
-  }, [isAuthenticated]);
+    const checkAdmin = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user?.email === ADMIN_EMAIL) {
+        setIsAdmin(true);
+        setAuthChecking(false);
+        fetchPDFs();
+      } else {
+        setIsAdmin(false);
+        setAuthChecking(false);
+      }
+    };
 
-  if (!isAuthenticated) {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user?.email === ADMIN_EMAIL) {
+        setIsAdmin(true);
+        setAuthChecking(false);
+        fetchPDFs();
+      } else {
+        setIsAdmin(false);
+        setAuthChecking(false);
+      }
+    });
+
+    checkAdmin();
+    return () => subscription.unsubscribe();
+  }, []);
+
+  if (authChecking) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-4">
         <motion.div
@@ -79,21 +101,13 @@ const AdminPanel = () => {
           className="glass-card p-8 w-full max-w-sm text-center"
         >
           <Lock className="w-12 h-12 text-primary mx-auto mb-4" />
-          <h2 className="text-xl font-display font-bold text-foreground mb-2">Admin Access</h2>
-          <p className="text-sm text-muted-foreground mb-6">Password enter करो</p>
-          <Input
-            type="password"
-            value={passwordInput}
-            onChange={(e) => setPasswordInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handlePasswordSubmit()}
-            placeholder="Password"
-            className="bg-secondary border-border mb-4"
-          />
-          <Button className="w-full gold-gradient text-primary-foreground" onClick={handlePasswordSubmit}>
-            <Unlock className="w-4 h-4 mr-2" /> Unlock
+          <h2 className="text-xl font-display font-bold text-foreground mb-2">Access Denied</h2>
+          <p className="text-sm text-muted-foreground mb-6">Sirf admin hi ye page dekh sakta hai. Apne admin Gmail se login karo.</p>
+          <Button className="w-full gold-gradient text-primary-foreground" onClick={() => navigate("/")}>
+            <ArrowLeft className="w-4 h-4 mr-2" /> Login Page
           </Button>
           <Button variant="ghost" className="mt-3 text-muted-foreground" onClick={() => navigate("/dashboard")}>
-            <ArrowLeft className="w-4 h-4 mr-1" /> Back
+            Dashboard
           </Button>
         </motion.div>
       </div>
