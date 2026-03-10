@@ -61,7 +61,7 @@ const Dashboard = () => {
           <div className="flex items-center gap-3">
             {!isSubscribed && (
               <Button onClick={() => navigate("/plans")} size="sm" className="gold-gradient text-primary-foreground font-semibold hover:opacity-90">
-                <Star className="w-4 h-4 mr-1" /> Subscribe
+                <Star className="w-4 h-4 mr-1" /> ₹5 Unlock
               </Button>
             )}
             {isSubscribed && (
