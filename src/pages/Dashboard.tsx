@@ -69,6 +69,9 @@ const Dashboard = () => {
                 <Crown className="w-3 h-3 mr-1" /> Premium
               </Badge>
             )}
+            <Button variant="ghost" size="icon" onClick={() => navigate("/install")} className="text-muted-foreground hover:text-foreground">
+              <Download className="w-5 h-5" />
+            </Button>
             <Button variant="ghost" size="icon" onClick={() => navigate("/admin")} className="text-muted-foreground hover:text-foreground">
               <Settings className="w-5 h-5" />
             </Button>
