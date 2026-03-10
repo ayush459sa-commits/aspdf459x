@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Search, Filter, Crown, LogOut, BookOpen, Star, User, Settings, Loader2 } from "lucide-react";
+import { Search, Filter, Crown, LogOut, BookOpen, Star, User, Settings, Loader2, Download } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -69,6 +69,9 @@ const Dashboard = () => {
                 <Crown className="w-3 h-3 mr-1" /> Premium
               </Badge>
             )}
+            <Button variant="ghost" size="icon" onClick={() => navigate("/install")} className="text-muted-foreground hover:text-foreground">
+              <Download className="w-5 h-5" />
+            </Button>
             <Button variant="ghost" size="icon" onClick={() => navigate("/admin")} className="text-muted-foreground hover:text-foreground">
               <Settings className="w-5 h-5" />
             </Button>
