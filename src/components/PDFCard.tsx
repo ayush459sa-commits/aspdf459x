@@ -1,4 +1,4 @@
-import { Lock, FileText, Eye } from "lucide-react";
+import { Lock, FileText, Eye, IndianRupee } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -23,8 +23,8 @@ const PDFCard = ({ pdf, isSubscribed }: PDFCardProps) => {
 
   const handleView = () => {
     if (isLocked) {
-      toast.error("Subscribe to unlock this PDF");
-      navigate("/plans");
+      toast.error("₹5 pay karke unlock karo!");
+      navigate(`/plans?pdf=${pdf.id}`);
     } else {
       navigate(`/pdf/${pdf.id}`);
     }
@@ -32,7 +32,6 @@ const PDFCard = ({ pdf, isSubscribed }: PDFCardProps) => {
 
   return (
     <div className={`glass-card overflow-hidden group transition-all duration-300 hover:glow-gold ${isLocked ? "opacity-80" : ""}`}>
-      {/* Thumbnail */}
       <div className="relative h-40 bg-secondary flex items-center justify-center overflow-hidden">
         <FileText className="w-16 h-16 text-muted-foreground/30" />
         <div className="absolute top-3 right-3">
@@ -49,23 +48,29 @@ const PDFCard = ({ pdf, isSubscribed }: PDFCardProps) => {
         )}
       </div>
 
-      {/* Content */}
       <div className="p-5">
         <h3 className="font-semibold text-foreground mb-1 line-clamp-1">{pdf.title}</h3>
         <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{pdf.description}</p>
         <div className="flex items-center justify-between">
-          <span className="text-xs text-muted-foreground">{pdf.pages} pages</span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">{pdf.pages} pages</span>
+            {isLocked && (
+              <span className="flex items-center text-sm font-bold gold-text">
+                <IndianRupee className="w-3.5 h-3.5" />5
+              </span>
+            )}
+          </div>
           <Button
             size="sm"
             onClick={handleView}
             className={isLocked 
-              ? "bg-secondary text-secondary-foreground hover:bg-muted" 
+              ? "gold-gradient text-primary-foreground hover:opacity-90" 
               : "gold-gradient text-primary-foreground hover:opacity-90"
             }
           >
             {isLocked ? (
               <>
-                <Lock className="w-3 h-3 mr-1" /> Locked
+                <Lock className="w-3 h-3 mr-1" /> ₹5 Unlock
               </>
             ) : (
               <>
