@@ -35,10 +35,15 @@ const LoginPage = () => {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { data: { full_name: name } },
+          options: {
+            data: { full_name: name },
+            emailRedirectTo: window.location.origin,
+          },
         });
         if (error) throw error;
-        toast.success("Account ban gaya! Welcome to AS PDF's 🎉");
+        toast.success("Verification email bheja gaya hai! Email check karo aur verify karo 📧");
+        setLoading(false);
+        return;
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
