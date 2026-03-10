@@ -207,23 +207,6 @@ const LoginPage = () => {
               {!loading && <ArrowRight className="w-4 h-4 ml-2" />}
             </Button>
 
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-border" />
-              </div>
-              <div className="relative flex justify-center text-xs">
-                <span className="bg-card px-3 text-muted-foreground">or</span>
-              </div>
-            </div>
-
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={handleGuest}
-              className="w-full h-10 text-muted-foreground hover:text-foreground"
-            >
-              Continue as Guest
-            </Button>
           </form>
 
           <p className="text-center text-sm text-muted-foreground mt-6">
