@@ -57,9 +57,6 @@ const LoginPage = () => {
     }
   };
 
-  const handleGuest = () => {
-    navigate("/dashboard");
-  };
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
