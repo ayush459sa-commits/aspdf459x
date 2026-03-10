@@ -97,11 +97,11 @@ const Dashboard = () => {
                 <Crown className="w-6 h-6 text-primary" />
               </div>
               <div>
-                <h3 className="font-semibold text-foreground">Unlock All PDFs</h3>
-                <p className="text-sm text-muted-foreground">Subscribe to access our entire library of premium content</p>
+                <h3 className="font-semibold text-foreground">Sirf ₹5 mein PDF Unlock karo</h3>
+                <p className="text-sm text-muted-foreground">Koi bhi locked PDF sirf ₹5 mein access karo</p>
               </div>
             </div>
-            <Button onClick={() => navigate("/plans")} className="gold-gradient text-primary-foreground font-semibold hover:opacity-90">View Plans</Button>
+            <Button onClick={() => navigate("/plans")} className="gold-gradient text-primary-foreground font-semibold hover:opacity-90">₹5 Pay karo</Button>
           </motion.div>
         )}
 
