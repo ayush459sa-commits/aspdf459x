@@ -35,10 +35,15 @@ const LoginPage = () => {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { data: { full_name: name } },
+          options: {
+            data: { full_name: name },
+            emailRedirectTo: window.location.origin,
+          },
         });
         if (error) throw error;
-        toast.success("Account ban gaya! Welcome to AS PDF's 🎉");
+        toast.success("Verification email bheja gaya hai! Email check karo aur verify karo 📧");
+        setLoading(false);
+        return;
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -52,9 +57,6 @@ const LoginPage = () => {
     }
   };
 
-  const handleGuest = () => {
-    navigate("/dashboard");
-  };
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
@@ -205,23 +207,6 @@ const LoginPage = () => {
               {!loading && <ArrowRight className="w-4 h-4 ml-2" />}
             </Button>
 
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-border" />
-              </div>
-              <div className="relative flex justify-center text-xs">
-                <span className="bg-card px-3 text-muted-foreground">or</span>
-              </div>
-            </div>
-
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={handleGuest}
-              className="w-full h-10 text-muted-foreground hover:text-foreground"
-            >
-              Continue as Guest
-            </Button>
           </form>
 
           <p className="text-center text-sm text-muted-foreground mt-6">
