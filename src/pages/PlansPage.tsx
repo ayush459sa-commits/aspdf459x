@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Crown, ArrowLeft, Copy, QrCode, Smartphone, IndianRupee, FileText } from "lucide-react";
+import { GraduationCap, ArrowLeft, Copy, QrCode, Smartphone, IndianRupee, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -47,12 +47,12 @@ const PlansPage = () => {
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8">
           <div className="w-16 h-16 rounded-2xl gold-gradient flex items-center justify-center mx-auto mb-4">
-            <Crown className="w-8 h-8 text-primary-foreground" />
+            <GraduationCap className="w-8 h-8 text-primary-foreground" />
           </div>
-          <h1 className="text-3xl font-display font-bold text-foreground mb-2">
-            Unlock <span className="gold-text">PDF</span>
+          <h1 className="text-3xl font-bold text-foreground mb-2 font-[Poppins]">
+            Unlock <span className="gold-text">Chapter</span>
           </h1>
-          <p className="text-muted-foreground">Sirf ₹5 mein koi bhi PDF unlock karo</p>
+          <p className="text-muted-foreground">Sirf ₹5 mein koi bhi chapter unlock karo</p>
         </motion.div>
 
         <motion.div
@@ -62,7 +62,7 @@ const PlansPage = () => {
           className="glass-card p-8 glow-gold text-center"
         >
           <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-            <FileText className="w-10 h-10 text-primary" />
+            <BookOpen className="w-10 h-10 text-primary" />
           </div>
           <div className="flex items-center justify-center gap-1 mb-2">
             <span className="text-5xl font-bold gold-text flex items-center">
