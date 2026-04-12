@@ -1,4 +1,4 @@
-import { Lock, FileText, Eye, IndianRupee } from "lucide-react";
+import { Lock, BookOpen, Eye, IndianRupee, FileText, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -15,11 +15,32 @@ interface PDF {
 interface PDFCardProps {
   pdf: PDF;
   isSubscribed: boolean;
+  index?: number;
 }
 
-const PDFCard = ({ pdf, isSubscribed }: PDFCardProps) => {
+const subjectColors: Record<string, string> = {
+  Business: "subject-orange",
+  Technology: "subject-blue",
+  Science: "subject-green",
+  Education: "subject-purple",
+  Finance: "subject-teal",
+  "Self-Help": "subject-pink",
+};
+
+const subjectIcons: Record<string, typeof BookOpen> = {
+  Business: FileText,
+  Technology: GraduationCap,
+  Science: BookOpen,
+  Education: GraduationCap,
+  Finance: FileText,
+  "Self-Help": BookOpen,
+};
+
+const PDFCard = ({ pdf, isSubscribed, index = 0 }: PDFCardProps) => {
   const navigate = useNavigate();
   const isLocked = pdf.locked && !isSubscribed;
+  const colorClass = subjectColors[pdf.category] || "subject-blue";
+  const IconComp = subjectIcons[pdf.category] || BookOpen;
 
   const handleView = () => {
     if (isLocked) {
@@ -31,41 +52,55 @@ const PDFCard = ({ pdf, isSubscribed }: PDFCardProps) => {
   };
 
   return (
-    <div className={`glass-card overflow-hidden group transition-all duration-300 hover:glow-gold ${isLocked ? "opacity-80" : ""}`}>
-      <div className="relative h-40 bg-secondary flex items-center justify-center overflow-hidden">
-        <FileText className="w-16 h-16 text-muted-foreground/30" />
-        <div className="absolute top-3 right-3">
-          <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-secondary text-secondary-foreground">
-            {pdf.category}
-          </span>
-        </div>
-        {isLocked && (
-          <div className="absolute inset-0 bg-background/60 backdrop-blur-sm flex items-center justify-center">
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-              <Lock className="w-6 h-6 text-primary" />
-            </div>
-          </div>
-        )}
-      </div>
-
+    <div className="glass-card overflow-hidden group transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+      {/* Top color band */}
+      <div className={`h-2 ${colorClass}`} />
+      
       <div className="p-5">
-        <h3 className="font-semibold text-foreground mb-1 line-clamp-1">{pdf.title}</h3>
-        <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{pdf.description}</p>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">{pdf.pages} pages</span>
+        {/* Chapter header */}
+        <div className="flex items-start gap-3 mb-3">
+          <div className={`w-11 h-11 rounded-xl ${colorClass} flex items-center justify-center flex-shrink-0`}>
+            {isLocked ? (
+              <Lock className="w-5 h-5 text-primary-foreground" />
+            ) : (
+              <IconComp className="w-5 h-5 text-primary-foreground" />
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">
+              Chapter {index + 1} • {pdf.category}
+            </p>
+            <h3 className="font-semibold text-foreground line-clamp-2 text-sm leading-snug">
+              {pdf.title}
+            </h3>
+          </div>
+        </div>
+
+        {/* Description */}
+        {pdf.description && (
+          <p className="text-xs text-muted-foreground mb-3 line-clamp-2 pl-14">
+            {pdf.description}
+          </p>
+        )}
+
+        {/* Footer */}
+        <div className="flex items-center justify-between pt-3 border-t border-border">
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-muted-foreground flex items-center gap-1">
+              <FileText className="w-3 h-3" /> {pdf.pages} pages
+            </span>
             {isLocked && (
-              <span className="flex items-center text-sm font-bold gold-text">
-                <IndianRupee className="w-3.5 h-3.5" />5
+              <span className="flex items-center text-xs font-bold text-destructive">
+                <IndianRupee className="w-3 h-3" />5
               </span>
             )}
           </div>
           <Button
             size="sm"
             onClick={handleView}
-            className={isLocked 
-              ? "gold-gradient text-primary-foreground hover:opacity-90" 
-              : "gold-gradient text-primary-foreground hover:opacity-90"
+            className={isLocked
+              ? "bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground text-xs h-8 px-3"
+              : "gold-gradient text-primary-foreground hover:opacity-90 text-xs h-8 px-3"
             }
           >
             {isLocked ? (
@@ -74,7 +109,7 @@ const PDFCard = ({ pdf, isSubscribed }: PDFCardProps) => {
               </>
             ) : (
               <>
-                <Eye className="w-3 h-3 mr-1" /> View
+                <Eye className="w-3 h-3 mr-1" /> Read
               </>
             )}
           </Button>

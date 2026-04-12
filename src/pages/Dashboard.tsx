@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Search, Filter, Crown, LogOut, BookOpen, Star, User, Settings, Loader2, Download } from "lucide-react";
+import { Search, LogOut, BookOpen, Star, Settings, Loader2, Download, GraduationCap, Library, TrendingUp, Lock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -9,6 +9,16 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 
 const categories = ["All", "Business", "Technology", "Science", "Education", "Finance", "Self-Help"];
+
+const subjectEmoji: Record<string, string> = {
+  All: "📚",
+  Business: "💼",
+  Technology: "💻",
+  Science: "🔬",
+  Education: "🎓",
+  Finance: "📊",
+  "Self-Help": "🧠",
+};
 
 interface PDFData {
   id: string;
@@ -48,101 +58,155 @@ const Dashboard = () => {
     return matchesSearch && matchesCategory;
   });
 
+  const totalPdfs = pdfs.length;
+  const lockedPdfs = pdfs.filter(p => p.locked).length;
+  const unlockedPdfs = totalPdfs - lockedPdfs;
+
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-50 glass border-b border-border">
+      {/* Header */}
+      <header className="sticky top-0 z-50 glass">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg gold-gradient flex items-center justify-center">
-              <Crown className="w-5 h-5 text-primary-foreground" />
+            <div className="w-9 h-9 rounded-xl gold-gradient flex items-center justify-center">
+              <GraduationCap className="w-5 h-5 text-primary-foreground" />
             </div>
-            <span className="text-lg font-display font-bold text-foreground">AS PDF's</span>
+            <div>
+              <span className="text-base font-bold text-foreground font-[Poppins]">AS Textbooks</span>
+              <p className="text-[10px] text-muted-foreground leading-none">Learn • Grow • Excel</p>
+            </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             {!isSubscribed && (
-              <Button onClick={() => navigate("/plans")} size="sm" className="gold-gradient text-primary-foreground font-semibold hover:opacity-90">
-                <Star className="w-4 h-4 mr-1" /> ₹5 Unlock
+              <Button onClick={() => navigate("/plans")} size="sm" className="gold-gradient text-primary-foreground font-semibold hover:opacity-90 text-xs h-8">
+                <Lock className="w-3 h-3 mr-1" /> ₹5 Unlock
               </Button>
             )}
             {isSubscribed && (
-              <Badge className="bg-primary/10 text-primary border-primary/20">
-                <Crown className="w-3 h-3 mr-1" /> Premium
+              <Badge className="bg-accent/10 text-accent border-accent/20 text-xs">
+                <Star className="w-3 h-3 mr-1" /> Premium
               </Badge>
             )}
-            <Button variant="ghost" size="icon" onClick={() => navigate("/install")} className="text-muted-foreground hover:text-foreground">
-              <Download className="w-5 h-5" />
+            <Button variant="ghost" size="icon" onClick={() => navigate("/install")} className="text-muted-foreground hover:text-foreground h-8 w-8">
+              <Download className="w-4 h-4" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => navigate("/admin")} className="text-muted-foreground hover:text-foreground">
-              <Settings className="w-5 h-5" />
+            <Button variant="ghost" size="icon" onClick={() => navigate("/admin")} className="text-muted-foreground hover:text-foreground h-8 w-8">
+              <Settings className="w-4 h-4" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => navigate("/")} className="text-muted-foreground hover:text-foreground">
-              <LogOut className="w-5 h-5" />
+            <Button variant="ghost" size="icon" onClick={() => navigate("/")} className="text-muted-foreground hover:text-foreground h-8 w-8">
+              <LogOut className="w-4 h-4" />
             </Button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-2">
-            Explore <span className="gold-text">Premium PDFs</span>
+      <main className="max-w-7xl mx-auto px-4 py-6">
+        {/* Hero section */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1 font-[Poppins]">
+            📚 My <span className="gold-text">Textbooks</span>
           </h1>
-          <p className="text-muted-foreground">Browse our curated collection of premium content</p>
+          <p className="text-sm text-muted-foreground">Apne subjects explore karo aur chapters padhna shuru karo</p>
         </motion.div>
 
-        {!isSubscribed && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass-card p-6 mb-8 glow-gold flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Crown className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground">Sirf ₹5 mein PDF Unlock karo</h3>
-                <p className="text-sm text-muted-foreground">Koi bhi locked PDF sirf ₹5 mein access karo</p>
-              </div>
+        {/* Stats cards */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="grid grid-cols-3 gap-3 mb-6">
+          <div className="glass-card p-3 text-center">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-1.5">
+              <Library className="w-4 h-4 text-primary" />
             </div>
-            <Button onClick={() => navigate("/plans")} className="gold-gradient text-primary-foreground font-semibold hover:opacity-90">₹5 Pay karo</Button>
-          </motion.div>
-        )}
-
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="flex flex-col md:flex-row gap-4 mb-6">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search PDFs..." className="bg-secondary border-border pl-10 h-11" />
+            <p className="text-lg font-bold text-foreground">{totalPdfs}</p>
+            <p className="text-[10px] text-muted-foreground">Total Books</p>
+          </div>
+          <div className="glass-card p-3 text-center">
+            <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center mx-auto mb-1.5">
+              <BookOpen className="w-4 h-4 text-accent" />
+            </div>
+            <p className="text-lg font-bold text-foreground">{unlockedPdfs}</p>
+            <p className="text-[10px] text-muted-foreground">Free</p>
+          </div>
+          <div className="glass-card p-3 text-center">
+            <div className="w-8 h-8 rounded-lg bg-destructive/10 flex items-center justify-center mx-auto mb-1.5">
+              <Lock className="w-4 h-4 text-destructive" />
+            </div>
+            <p className="text-lg font-bold text-foreground">{lockedPdfs}</p>
+            <p className="text-[10px] text-muted-foreground">₹5 Each</p>
           </div>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="flex gap-2 mb-8 overflow-x-auto pb-2 scrollbar-hide">
+        {/* Unlock banner */}
+        {!isSubscribed && lockedPdfs > 0 && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} 
+            className="glass-card p-4 mb-6 border-l-4 border-l-primary flex items-center justify-between gap-3"
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">🎯</span>
+              <div>
+                <h3 className="font-semibold text-foreground text-sm">Koi bhi chapter ₹5 mein unlock karo</h3>
+                <p className="text-xs text-muted-foreground">UPI se instant access paao</p>
+              </div>
+            </div>
+            <Button onClick={() => navigate("/plans")} size="sm" className="gold-gradient text-primary-foreground font-semibold hover:opacity-90 text-xs h-8 flex-shrink-0">
+              ₹5 Pay karo
+            </Button>
+          </motion.div>
+        )}
+
+        {/* Search */}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="mb-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search chapters..." className="bg-card border-border pl-10 h-10" />
+          </div>
+        </motion.div>
+
+        {/* Subject tabs */}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }} className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
           {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
-                activeCategory === cat ? "gold-gradient text-primary-foreground" : "bg-secondary text-muted-foreground hover:text-foreground"
+              className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${
+                activeCategory === cat
+                  ? "gold-gradient text-primary-foreground shadow-md"
+                  : "bg-card text-muted-foreground hover:text-foreground border border-border"
               }`}
             >
+              <span>{subjectEmoji[cat]}</span>
               {cat}
             </button>
           ))}
         </motion.div>
 
+        {/* PDF Grid */}
         {loading ? (
           <div className="text-center py-16">
-            <Loader2 className="w-10 h-10 animate-spin text-primary mx-auto" />
+            <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-3" />
+            <p className="text-sm text-muted-foreground">Loading textbooks...</p>
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {activeCategory !== "All" && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-4">
+                <h2 className="text-lg font-bold text-foreground font-[Poppins] flex items-center gap-2">
+                  {subjectEmoji[activeCategory]} {activeCategory}
+                  <Badge variant="secondary" className="text-xs font-normal">{filtered.length} chapters</Badge>
+                </h2>
+              </motion.div>
+            )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filtered.map((pdf, i) => (
-                <motion.div key={pdf.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 + i * 0.05 }}>
-                  <PDFCard pdf={{ ...pdf, pages: pdf.pages || 0, description: pdf.description || "" }} isSubscribed={isSubscribed} />
+                <motion.div key={pdf.id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 + i * 0.03 }}>
+                  <PDFCard pdf={{ ...pdf, pages: pdf.pages || 0, description: pdf.description || "" }} isSubscribed={isSubscribed} index={i} />
                 </motion.div>
               ))}
             </div>
             {filtered.length === 0 && (
               <div className="text-center py-16">
-                <BookOpen className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">No PDFs found matching your search.</p>
+                <BookOpen className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+                <p className="text-muted-foreground text-sm">No chapters found</p>
+                <p className="text-xs text-muted-foreground mt-1">Try searching with different keywords</p>
               </div>
             )}
           </>
