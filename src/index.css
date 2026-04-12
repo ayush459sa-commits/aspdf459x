@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,44 +6,44 @@
 
 @layer base {
   :root {
-    --background: 0 0% 4%;
-    --foreground: 0 0% 95%;
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
 
-    --card: 0 0% 7%;
-    --card-foreground: 0 0% 95%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
 
-    --popover: 0 0% 7%;
-    --popover-foreground: 0 0% 95%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
 
-    --primary: 15 90% 55%;
+    --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 85%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 30%;
 
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 50%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
 
-    --accent: 8 85% 50%;
+    --accent: 142 71% 45%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 15%;
-    --input: 0 0% 15%;
-    --ring: 15 90% 55%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 217 91% 60%;
 
     --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 5%;
-    --sidebar-foreground: 0 0% 85%;
-    --sidebar-primary: 15 90% 55%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 222 47% 30%;
+    --sidebar-primary: 217 91% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 12%;
-    --sidebar-accent-foreground: 0 0% 85%;
-    --sidebar-border: 0 0% 15%;
-    --sidebar-ring: 15 90% 55%;
+    --sidebar-accent: 210 40% 96%;
+    --sidebar-accent-foreground: 222 47% 30%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-ring: 217 91% 60%;
   }
 }
 
@@ -58,41 +58,57 @@
   }
 
   h1, h2, h3 {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Poppins', sans-serif;
   }
 }
 
-/* Custom utility classes using plain CSS */
+/* Educational theme utilities */
 .glass {
-  background: hsla(0, 0%, 10%, 0.6);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid hsla(0, 0%, 18%, 1);
+  background: hsla(0, 0%, 100%, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid hsla(214, 32%, 91%, 1);
 }
 
 .glass-card {
-  background: hsla(0, 0%, 10%, 0.4);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid hsla(0, 0%, 18%, 0.5);
-  border-radius: 0.75rem;
+  background: hsla(0, 0%, 100%, 1);
+  border: 1px solid hsla(214, 32%, 91%, 1);
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px hsla(0, 0%, 0%, 0.04), 0 4px 12px hsla(0, 0%, 0%, 0.03);
 }
 
 .gold-gradient {
-  background: linear-gradient(135deg, hsl(15, 90%, 55%), hsl(25, 100%, 60%));
+  background: linear-gradient(135deg, hsl(217, 91%, 60%), hsl(230, 94%, 65%));
 }
 
 .gold-text {
-  background: linear-gradient(135deg, hsl(15, 90%, 55%), hsl(30, 100%, 60%));
+  background: linear-gradient(135deg, hsl(217, 91%, 60%), hsl(260, 80%, 60%));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .glow-gold {
-  box-shadow: 0 0 20px hsla(15, 90%, 55%, 0.15), 0 0 60px hsla(15, 90%, 55%, 0.05);
+  box-shadow: 0 4px 20px hsla(217, 91%, 60%, 0.12), 0 1px 6px hsla(217, 91%, 60%, 0.06);
 }
 
 .glow-gold-strong {
-  box-shadow: 0 0 30px hsla(15, 90%, 55%, 0.25), 0 0 80px hsla(15, 90%, 55%, 0.1);
+  box-shadow: 0 8px 30px hsla(217, 91%, 60%, 0.2), 0 2px 10px hsla(217, 91%, 60%, 0.1);
+}
+
+/* Subject color utilities */
+.subject-blue { background: linear-gradient(135deg, hsl(217, 91%, 60%), hsl(230, 85%, 65%)); }
+.subject-green { background: linear-gradient(135deg, hsl(142, 71%, 45%), hsl(160, 70%, 40%)); }
+.subject-orange { background: linear-gradient(135deg, hsl(25, 95%, 53%), hsl(35, 95%, 55%)); }
+.subject-purple { background: linear-gradient(135deg, hsl(270, 70%, 55%), hsl(290, 65%, 55%)); }
+.subject-red { background: linear-gradient(135deg, hsl(0, 75%, 55%), hsl(15, 80%, 55%)); }
+.subject-teal { background: linear-gradient(135deg, hsl(180, 60%, 40%), hsl(195, 65%, 45%)); }
+.subject-pink { background: linear-gradient(135deg, hsl(330, 70%, 55%), hsl(350, 75%, 60%)); }
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
