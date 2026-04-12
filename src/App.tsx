@@ -10,6 +10,7 @@ import AdminPanel from "./pages/AdminPanel";
 import PDFViewer from "./pages/PDFViewer";
 import InstallPage from "./pages/InstallPage";
 import NotFound from "./pages/NotFound";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -21,11 +22,11 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<LoginPage />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/plans" element={<PlansPage />} />
-          <Route path="/admin" element={<AdminPanel />} />
-          <Route path="/pdf/:id" element={<PDFViewer />} />
-          <Route path="/install" element={<InstallPage />} />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/plans" element={<ProtectedRoute><PlansPage /></ProtectedRoute>} />
+          <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
+          <Route path="/pdf/:id" element={<ProtectedRoute><PDFViewer /></ProtectedRoute>} />
+          <Route path="/install" element={<ProtectedRoute><InstallPage /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
