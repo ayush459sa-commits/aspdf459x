@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import PDFCard from "@/components/PDFCard";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const categories = ["All", "Business", "Technology", "Science", "Education", "Finance", "Self-Help"];
 
