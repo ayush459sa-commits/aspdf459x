@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import PDFCard from "@/components/PDFCard";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const categories = ["All", "Business", "Technology", "Science", "Education", "Finance", "Self-Help"];
 
@@ -93,7 +94,15 @@ const Dashboard = () => {
             <Button variant="ghost" size="icon" onClick={() => navigate("/admin")} className="text-muted-foreground hover:text-foreground h-8 w-8">
               <Settings className="w-4 h-4" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => navigate("/")} className="text-muted-foreground hover:text-foreground h-8 w-8">
+            <Button variant="ghost" size="icon" onClick={async () => {
+              const { data: { session } } = await supabase.auth.getSession();
+              if (session) {
+                await supabase.auth.signOut();
+                toast.success("Logout ho gaye! 👋");
+              } else {
+                navigate("/login");
+              }
+            }} className="text-muted-foreground hover:text-foreground h-8 w-8">
               <LogOut className="w-4 h-4" />
             </Button>
           </div>

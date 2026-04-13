@@ -11,7 +11,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (!session) {
-        navigate("/", { replace: true });
+        navigate("/login", { replace: true });
       } else {
         setAuthenticated(true);
       }
@@ -20,7 +20,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) {
-        navigate("/", { replace: true });
+        navigate("/login", { replace: true });
       } else {
         setAuthenticated(true);
       }
