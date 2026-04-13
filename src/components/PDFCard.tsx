@@ -2,6 +2,7 @@ import { Lock, BookOpen, Eye, IndianRupee, FileText, GraduationCap } from "lucid
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface PDF {
   id: string | number;
@@ -42,13 +43,20 @@ const PDFCard = ({ pdf, isSubscribed, index = 0 }: PDFCardProps) => {
   const colorClass = subjectColors[pdf.category] || "subject-blue";
   const IconComp = subjectIcons[pdf.category] || BookOpen;
 
-  const handleView = () => {
+  const handleView = async () => {
     if (isLocked) {
       toast.error("₹5 pay karke unlock karo!");
       navigate(`/plans?pdf=${pdf.id}`);
-    } else {
-      navigate(`/pdf/${pdf.id}`);
+      return;
     }
+    
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      toast.info("PDF padhne ke liye pehle login karo 📚");
+      navigate("/login");
+      return;
+    }
+    navigate(`/pdf/${pdf.id}`);
   };
 
   return (
